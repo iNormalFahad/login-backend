@@ -2,13 +2,24 @@ import "dotenv/config";
 import express from "express";
 import { fileURLToPath } from "url";
 import { dirname, join } from "path";
+import helmet from "helmet";
+import cors from "cors";
 import authRoutes from "./routes/auth.js";
 import { initDB } from "./config/db.js";
+import { generalLimiter } from "./middleware/security.js";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
 const app = express();
 const PORT = process.env.PORT || 8080;
+
+app.use(helmet());
+app.use(cors({
+    origin: process.env.CORS_ORIGIN || "http://localhost:5173",
+    methods: ["GET", "POST"],
+    allowedHeaders: ["Content-Type", "Authorization"],
+}));
+app.use(generalLimiter);
 
 app.set("view engine", "ejs");
 app.set("views", join(__dirname, "views"));
